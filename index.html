@@ -54,7 +54,6 @@
     border-radius: 20px;
     border: 1px solid var(--line);
     display: grid;
-    grid-template-rows: 1fr auto;
     overflow: hidden;
   }
   .counter.elder { background: var(--elder-bg); --accent: var(--elder); }
@@ -101,21 +100,24 @@
   .count.bump { animation: bump .18s ease-out; }
   @keyframes bump { 40% { transform: scale(1.12); } }
 
-  .row {
-    display: flex;
-    border-top: 1px solid rgba(255,255,255,.08);
-  }
-  .row button {
+  .minus {
     all: unset;
     cursor: pointer;
-    flex: 1;
-    text-align: center;
-    padding: 14px 0;
-    font-size: 15px;
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    line-height: 1;
     color: var(--muted);
+    background: rgba(0,0,0,.28);
+    border: 1px solid rgba(255,255,255,.12);
   }
-  .row button:active { background: rgba(255,255,255,.06); }
-  .row button + button { border-left: 1px solid rgba(255,255,255,.08); }
+  .minus:active { background: rgba(255,255,255,.12); }
 
   footer { display: flex; gap: 10px; padding-top: 12px; }
   footer button {
@@ -155,9 +157,7 @@
         <span class="label">Elder Sign</span>
         <span class="count" id="elder">0</span>
       </button>
-      <div class="row">
-        <button data-minus="elder" aria-label="Remove one Elder Sign">− 1</button>
-      </div>
+      <button class="minus" data-minus="elder" aria-label="Remove one Elder Sign">−</button>
     </section>
 
     <section class="counter fail">
@@ -175,9 +175,7 @@
         <span class="label">Auto-fail</span>
         <span class="count" id="fail">0</span>
       </button>
-      <div class="row">
-        <button data-minus="fail" aria-label="Remove one Auto-fail">− 1</button>
-      </div>
+      <button class="minus" data-minus="fail" aria-label="Remove one Auto-fail">−</button>
     </section>
   </main>
 
