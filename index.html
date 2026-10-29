@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#14110f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Token Tally">
+<title>Token Tally</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root {
+    --bg: #14110f;
+    --panel: #1f1a17;
+    --line: #3a302a;
+    --text: #efe6d8;
+    --muted: #a3968a;
+    --elder: #4fb3a1;
+    --elder-bg: #16302b;
+    --fail: #d8584b;
+    --fail-bg: #3a1916;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 12px);
+    user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior: none;
+  }
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 2px 10px;
+  }
+  h1 { font-size: 18px; margin: 0; letter-spacing: .04em; font-weight: 650; }
+  .total { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+  main { flex: 1; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+  .counter {
+    flex: 1;
+    position: relative;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+  .counter.elder { background: var(--elder-bg); --accent: var(--elder); }
+  .counter.fail  { background: var(--fail-bg);  --accent: var(--fail); }
+
+  .tap {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    transition: background .12s;
+  }
+  .tap:active { background: rgba(255,255,255,.06); }
+  .token {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, #3b342e, #171310 70%);
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 0 3px #0c0a09, 0 6px 16px rgba(0,0,0,.5);
+    overflow: hidden;
+  }
+  .token svg { width: 52px; height: 52px; color: var(--accent); }
+  .token img { width: 100%; height: 100%; object-fit: cover; }
+  /* a token image, when the file exists, replaces the drawn icon */
+  .token img + svg { display: none; }
+  .label { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  .count {
+    font-size: clamp(64px, 18vh, 120px);
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .count.bump { animation: bump .18s ease-out; }
+  @keyframes bump { 40% { transform: scale(1.12); } }
+
+  .row {
+    display: flex;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .row button {
+    all: unset;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .row button:active { background: rgba(255,255,255,.06); }
+  .row button + button { border-left: 1px solid rgba(255,255,255,.08); }
+
+  footer { display: flex; gap: 10px; padding-top: 12px; }
+  footer button {
+    all: unset;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    border-radius: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--text);
+  }
+  footer button:active { background: #2a231f; }
+  footer button:disabled { opacity: .4; cursor: default; }
+  footer .reset { color: var(--fail); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Token Tally</h1>
+    <span class="total" id="total"></span>
+  </header>
+
+  <main>
+    <section class="counter elder">
+      <button class="tap" data-key="elder" aria-label="Add Elder Sign">
+        <span class="token">
+        <img src="elder-sign.png" alt="" onerror="this.remove()">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+          <path d="M32 5 39 24 59 24 43 36 49 56 32 44 15 56 21 36 5 24 25 24Z"/>
+          <path d="M23 33c3-4 6-6 9-6s6 2 9 6c-3 4-6 6-9 6s-6-2-9-6Z"/>
+          <circle cx="32" cy="33" r="2.4" fill="currentColor" stroke="none"/>
+        </svg>
+        </span>
+        <span class="label">Elder Sign</span>
+        <span class="count" id="elder">0</span>
+      </button>
+      <div class="row">
+        <button data-minus="elder" aria-label="Remove one Elder Sign">− 1</button>
+      </div>
+    </section>
+
+    <section class="counter fail">
+      <button class="tap" data-key="fail" aria-label="Add Auto-fail">
+        <span class="token">
+        <img src="auto-fail.png" alt="" onerror="this.remove()">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M20 58c-2-12 4-18 12-22s11-10 8-16-10-6-12-1 2 8 5 6"/>
+          <path d="M44 58c1-8-2-12-6-15"/>
+          <circle cx="27" cy="44" r="1.8" fill="currentColor" stroke="none"/>
+          <circle cx="34" cy="38" r="1.8" fill="currentColor" stroke="none"/>
+          <circle cx="40" cy="30" r="1.8" fill="currentColor" stroke="none"/>
+        </svg>
+        </span>
+        <span class="label">Auto-fail</span>
+        <span class="count" id="fail">0</span>
+      </button>
+      <div class="row">
+        <button data-minus="fail" aria-label="Remove one Auto-fail">− 1</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <button id="undo">Undo</button>
+    <button id="reset" class="reset">New game</button>
+  </footer>
+
+<script>
+  const KEY = "arkham-token-tally";
+  let state = { elder: 0, fail: 0, history: [] };
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY));
+    if (saved) state = { ...state, ...saved };
+  } catch {}
+
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
+  const buzz = ms => navigator.vibrate && navigator.vibrate(ms);
+
+  function render(bumped) {
+    for (const k of ["elder", "fail"]) {
+      const el = document.getElementById(k);
+      el.textContent = state[k];
+      if (k === bumped) {
+        el.classList.remove("bump");
+        void el.offsetWidth;
+        el.classList.add("bump");
+      }
+    }
+    const t = state.elder + state.fail;
+    document.getElementById("total").textContent = t ? `${t} drawn` : "";
+    document.getElementById("undo").disabled = !state.history.length;
+  }
+
+  function change(k, d) {
+    if (state[k] + d < 0) return;
+    state[k] += d;
+    state.history.push([k, d]);
+    if (state.history.length > 200) state.history.shift();
+    save();
+    render(k);
+    buzz(d > 0 ? 25 : 10);
+  }
+
+  document.querySelectorAll("[data-key]").forEach(b =>
+    b.addEventListener("click", () => change(b.dataset.key, 1)));
+  document.querySelectorAll("[data-minus]").forEach(b =>
+    b.addEventListener("click", () => change(b.dataset.minus, -1)));
+
+  document.getElementById("undo").addEventListener("click", () => {
+    const last = state.history.pop();
+    if (!last) return;
+    state[last[0]] -= last[1];
+    save();
+    render(last[0]);
+    buzz(10);
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Start a new game? Both counts go back to 0.")) return;
+    state = { elder: 0, fail: 0, history: [] };
+    save();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
