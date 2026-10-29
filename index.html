@@ -67,7 +67,8 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 12px;
+    /* bottom padding keeps the number clear of the edge and the minus button */
+    padding: 12px 12px 60px;
     transition: background .12s;
   }
   .tap:active { background: rgba(255,255,255,.06); }
@@ -92,7 +93,7 @@
   }
   .label { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
   .count {
-    font-size: clamp(64px, 18vh, 120px);
+    font-size: clamp(56px, 14vh, 110px);
     line-height: 1;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
